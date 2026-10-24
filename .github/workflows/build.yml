@@ -1,0 +1,29 @@
+name: Build plugin
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build VST3 and Standalone
+        run: |
+          cmake --build build --config Release --target HbkBeatsGospelSounds_VST3
+          cmake --build build --config Release --target HbkBeatsGospelSounds_Standalone
+
+      - name: Upload plugin
+        uses: actions/upload-artifact@v4
+        with:
+          name: HbkBeatsGospelSounds-${{ matrix.os }}
+          path: build/HbkBeatsGospelSounds_artefacts/Release/
